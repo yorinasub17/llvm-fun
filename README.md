@@ -1,2 +1,2 @@
-# opencl-fun
-OpenCL fun
+# llvm-fun
+LLVM fun
