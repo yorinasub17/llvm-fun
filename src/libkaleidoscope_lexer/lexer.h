@@ -2,7 +2,7 @@
 #define LEXER_H_
 
 
-#include <fstream>
+#include <istream>
 #include <string>
 
 
@@ -26,12 +26,12 @@ enum TokenValue {
 
 struct Token {
     int token;
-    std::string token_identifier;
-    double token_number;
+    std::string identifier;
+    double number;
 };
 
 
-Token GetToken(std::ifstream& file);
+Token GetToken(std::istream& file);
 
 
 #endif  // LEXER_H_

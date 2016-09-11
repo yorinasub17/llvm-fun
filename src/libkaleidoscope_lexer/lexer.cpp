@@ -1,13 +1,13 @@
-#include "lexer.h"
-
 #include <limits>
 #include <stdio.h>
 #include <ctype.h>
 
+#include "lexer.h"
+
 
 // Advances pointer while predicate condition for character is true, returning
 // the combined characters as string.
-static std::string ConsumeWhileCondition(std::ifstream& file,
+static std::string ConsumeWhileCondition(std::istream& input,
                                          int *current_character,
                                          int (*character_predicate)(int))
 {
@@ -17,7 +17,7 @@ static std::string ConsumeWhileCondition(std::ifstream& file,
     characters += *current_character;
 
     // Keep consuming while predicate is true
-    while ((*character_predicate)(*current_character = file.get()))
+    while ((*character_predicate)(*current_character = input.get()))
         characters += *current_character;
 
     return characters;
@@ -49,33 +49,32 @@ static int isnumberchar(int character)
 }
 
 
-Token GetToken(std::ifstream& file)
+Token GetToken(std::istream& input)
 {
     Token token;
     std::string token_identifier;
-    int *current_character;
-    *current_character = file.get();
+    int current_character = input.get();
 
     // First, trim the leading whitespace
-    if (isspace(*current_character))
-        ConsumeWhileCondition(file, current_character, isspace);
+    if (isspace(current_character))
+        ConsumeWhileCondition(input, &current_character, isspace);
 
     // if first character is a letter, consume as identifier
-    if (isalpha(*current_character))
+    if (isalpha(current_character))
     {
-        token_identifier = ConsumeWhileCondition(file, current_character, isalnum);
+        token_identifier = ConsumeWhileCondition(input, &current_character, isalnum);
         token.token = LookupToken(token_identifier);
-        token.token_identifier = token_identifier;
-        token.token_number = std::numeric_limits<double>::quiet_NaN();
+        token.identifier = token_identifier;
+        token.number = std::numeric_limits<double>::quiet_NaN();
         return token;
     }
     // if first character is a number, consume as number
-    else if (isdigit(*current_character))
+    else if (isdigit(current_character))
     {
-        token_identifier = ConsumeWhileCondition(file, current_character, isnumberchar);
+        token_identifier = ConsumeWhileCondition(input, &current_character, isnumberchar);
         token.token = tok_number;
-        token.token_identifier = token_identifier;
-        token.token_number = stod(token_identifier);
+        token.identifier = token_identifier;
+        token.number = stod(token_identifier);
         return token;
     }
 
