@@ -100,7 +100,7 @@ Token GetToken(std::istream& input)
         return token;
     }
 
-    // Error: could not identify token
+    // return current character as is
     token.token = current_character;
     token.identifier = "";
     token.number = std::numeric_limits<double>::quiet_NaN();
