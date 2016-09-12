@@ -82,6 +82,28 @@ TEST(GetTokenTest, GetsNumberDecimal)
 }
 
 
+TEST(GetTokenTest, GetsEOF)
+{
+    std::istringstream stream(EOF);
+    Token token = GetToken(stream);
+
+    EXPECT_EQ(token.token, tok_eof);
+    EXPECT_EQ(token.identifier, "");
+    EXPECT_TRUE(std::isnan(token.number));
+}
+
+
+TEST(GetTokenTest, GetsComment)
+{
+    std::istringstream stream("# foo 12345\n");
+    Token token = GetToken(stream);
+
+    EXPECT_EQ(token.token, tok_eof);
+    EXPECT_EQ(token.identifier, "");
+    EXPECT_TRUE(std::isnan(token.number));
+}
+
+
 }
 
 

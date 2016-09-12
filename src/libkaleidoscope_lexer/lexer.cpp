@@ -43,9 +43,17 @@ static int LookupToken(std::string token)
 
 
 // Whether or not the character is for a number
-static int isnumberchar(int character)
+static int is_number_char(int character)
 {
     return isdigit(character) || character == '.';
+}
+
+
+// Whether or not the character is an end of line
+static int is_not_endofline(int character)
+{
+    int is_end_of_line = character == EOF || character == '\n' || character == '\r';
+    return !is_end_of_line;
 }
 
 
@@ -71,13 +79,30 @@ Token GetToken(std::istream& input)
     // if first character is a number, consume as number
     else if (isdigit(current_character))
     {
-        token_identifier = ConsumeWhileCondition(input, &current_character, isnumberchar);
+        token_identifier = ConsumeWhileCondition(input, &current_character, is_number_char);
         token.token = tok_number;
         token.identifier = token_identifier;
         token.number = stod(token_identifier);
         return token;
     }
+    // if first character starts a comment, consume until end of line
+    else if (current_character == '#')
+    {
+        ConsumeWhileCondition(input, &current_character, is_not_endofline);
+        return GetToken(input);
+    }
+    // check for eof
+    else if (current_character == EOF)
+    {
+        token.token = tok_eof;
+        token.identifier = "";
+        token.number = std::numeric_limits<double>::quiet_NaN();
+        return token;
+    }
 
     // Error: could not identify token
+    token.token = current_character;
+    token.identifier = "";
+    token.number = std::numeric_limits<double>::quiet_NaN();
     return token;
 }
