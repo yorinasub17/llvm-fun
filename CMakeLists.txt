@@ -6,7 +6,7 @@ option(test "Build all tests." OFF)
 
 
 # Build with warnings
-set(CMAKE_CXX_FLAGS "-g -Wall")
+set(CMAKE_CXX_FLAGS "-g -Wall -std=c++14 -pthread")
 
 
 ################################

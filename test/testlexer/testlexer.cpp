@@ -84,7 +84,7 @@ TEST(GetTokenTest, GetsNumberDecimal)
 
 TEST(GetTokenTest, GetsEOF)
 {
-    std::istringstream stream(EOF);
+    std::istringstream stream("");
     Token token = GetToken(stream);
 
     EXPECT_EQ(token.token, tok_eof);
