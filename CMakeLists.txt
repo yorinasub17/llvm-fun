@@ -26,9 +26,11 @@ if (test)
     include_directories(${GTEST_INCLUDE_DIRS})
 
     # Unit tests
-    add_executable(runUnitTests test/testlexer/testlexer.cpp)
+    add_executable(runUnitTests test/main.cpp test/testlexer/testlexer.cpp test/testparser/testparser.cpp)
     target_link_libraries(runUnitTests gtest gtest_main)
     target_link_libraries(runUnitTests kaleidoscope_lexer)
+    target_link_libraries(runUnitTests kaleidoscope_parser)
 
     add_test(GetTokenTest runUnitTests)
+    add_test(ParserTest runUnitTests)
 endif()

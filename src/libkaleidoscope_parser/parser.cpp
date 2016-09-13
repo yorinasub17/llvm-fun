@@ -36,27 +36,28 @@ Token Parser::get_next_token()
 
 std::unique_ptr<ExprAST> Parser::ParseExpression(Token token)
 {
+    std::unique_ptr<ExprAST> LHS = nullptr;
     Token next_token = this->get_next_token();
     if (is_simple_identifier(token, next_token))
     {
-        auto LHS = this->ParseIdentifierExpr(token);
+        LHS = this->ParseIdentifierExpr(token);
     }
     else if (token.token == tok_identifier)
     {
         // call expr will consume the next token, so make sure to get
         // the next token again before continuing
-        auto LHS = this->ParseCallExpr(token, next_token);
+        LHS = this->ParseCallExpr(token, next_token);
         Token next_token = this->get_next_token();
     }
     else if (token.token == tok_number)
     {
-        auto LHS = this->ParseNumberExpr(token);
+        LHS = this->ParseNumberExpr(token);
     }
     else if (token.token == '(')
     {
         // paren expr will consume the next token, so make sure to get
         // the next token again before continuing
-        auto LHS = this->ParseParenExpr(token, next_token);
+        LHS = this->ParseParenExpr(token, next_token);
         Token next_token = this->get_next_token();
     }
     else
@@ -65,7 +66,7 @@ std::unique_ptr<ExprAST> Parser::ParseExpression(Token token)
     }
 
     // TODO
-    return nullptr;
+    return LHS;
 }
 
 
@@ -121,6 +122,7 @@ std::unique_ptr<ExprAST> Parser::ParseCallExpr(Token current_token, Token next_t
     next_token = this->get_next_token();
     while (next_token.token != ')')
     {
+        // FIXME!!!: Bug where ParseExpression eats up close paren
         if (auto arg = this->ParseExpression(next_token))
             args.push_back(std::move(arg));
         else

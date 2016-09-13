@@ -8,17 +8,15 @@
 // Advances pointer while predicate condition for character is true, returning
 // the combined characters as string.
 static std::string ConsumeWhileCondition(std::istream& input,
-                                         int *current_character,
                                          int (*character_predicate)(int))
 {
     std::string characters("");
 
-    // start with current value
-    characters += *current_character;
-
     // Keep consuming while predicate is true
-    while ((*character_predicate)(*current_character = input.get()))
-        characters += *current_character;
+    while ((*character_predicate)(input.peek()))
+    {
+        characters += input.get();
+    }
 
     return characters;
 }
@@ -61,16 +59,17 @@ Token GetToken(std::istream& input)
 {
     Token token;
     std::string token_identifier;
-    int current_character = input.get();
 
     // First, trim the leading whitespace
-    if (isspace(current_character))
-        ConsumeWhileCondition(input, &current_character, isspace);
+    ConsumeWhileCondition(input, isspace);
+
+    // Now peek the current character
+    int current_character = input.peek();
 
     // if first character is a letter, consume as identifier
     if (isalpha(current_character))
     {
-        token_identifier = ConsumeWhileCondition(input, &current_character, isalnum);
+        token_identifier = ConsumeWhileCondition(input, isalnum);
         token.token = LookupToken(token_identifier);
         token.identifier = token_identifier;
         token.number = std::numeric_limits<double>::quiet_NaN();
@@ -79,7 +78,7 @@ Token GetToken(std::istream& input)
     // if first character is a number, consume as number
     else if (isdigit(current_character))
     {
-        token_identifier = ConsumeWhileCondition(input, &current_character, is_number_char);
+        token_identifier = ConsumeWhileCondition(input, is_number_char);
         token.token = tok_number;
         token.identifier = token_identifier;
         token.number = stod(token_identifier);
@@ -88,7 +87,7 @@ Token GetToken(std::istream& input)
     // if first character starts a comment, consume until end of line
     else if (current_character == '#')
     {
-        ConsumeWhileCondition(input, &current_character, is_not_endofline);
+        ConsumeWhileCondition(input, is_not_endofline);
         return GetToken(input);
     }
     // check for eof
@@ -101,7 +100,7 @@ Token GetToken(std::istream& input)
     }
 
     // return current character as is
-    token.token = current_character;
+    token.token = input.get();
     token.identifier = "";
     token.number = std::numeric_limits<double>::quiet_NaN();
     return token;

@@ -10,7 +10,7 @@
 class ExprAST
 {
   public:
-    virtual ~ExprAST();
+    virtual ~ExprAST() {}
 };
 
 
