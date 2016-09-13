@@ -62,4 +62,15 @@ TEST(ParserTest, ParseCallExpressionWorks)
 }
 
 
+TEST(ParserTest, ParseParenExpressionWorks)
+{
+    std::istringstream stream("(foo)");
+    Parser parser = Parser(stream);
+
+    // Check ParseExpression parses a call expression
+    auto expr = parser.ParseExpression();
+    EXPECT_TRUE(dynamic_cast<VariableExprAST*>(expr.get()));
+}
+
+
 }
