@@ -29,29 +29,13 @@ class ParserTest : public ::testing::Test
 };
 
 
-TEST(ParserTest, GetNextTokenWorks)
-{
-    std::istringstream stream("100");
-    Parser parser = Parser(stream);
-    Token token = parser.get_next_token();
-
-    EXPECT_EQ(token.token, tok_number);
-    EXPECT_EQ(token.identifier, "100");
-    EXPECT_EQ(token.number, 100.0);
-}
-
-
 TEST(ParserTest, ParseNumberExpressionWorks)
 {
     std::istringstream stream("100");
     Parser parser = Parser(stream);
-    Token token = parser.get_next_token();
-
-    EXPECT_EQ(token.token, tok_number);
 
     // Check ParseExpression parses a number expression
-    auto expr = parser.ParseExpression(token);
-
+    auto expr = parser.ParseExpression();
     EXPECT_TRUE(dynamic_cast<NumberExprAST*>(expr.get()));
 }
 
@@ -60,13 +44,9 @@ TEST(ParserTest, ParseVariableExpressionWorks)
 {
     std::istringstream stream("abcd");
     Parser parser = Parser(stream);
-    Token token = parser.get_next_token();
-
-    EXPECT_EQ(token.token, tok_identifier);
-
 
     // Check ParseExpression parses an identifier expression
-    auto expr = parser.ParseExpression(token);
+    auto expr = parser.ParseExpression();
     EXPECT_TRUE(dynamic_cast<VariableExprAST*>(expr.get()));
 }
 
@@ -75,12 +55,9 @@ TEST(ParserTest, ParseCallExpressionWorks)
 {
     std::istringstream stream("abcd(foo)");
     Parser parser = Parser(stream);
-    Token token = parser.get_next_token();
-    EXPECT_EQ(token.token, tok_identifier);
 
-
-    // Check ParseExpression parses an identifier expression
-    auto expr = parser.ParseExpression(token);
+    // Check ParseExpression parses a call expression
+    auto expr = parser.ParseExpression();
     EXPECT_TRUE(dynamic_cast<CallExprAST*>(expr.get()));
 }
 
