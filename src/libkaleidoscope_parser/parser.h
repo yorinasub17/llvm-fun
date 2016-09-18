@@ -30,7 +30,7 @@ class Parser
     void return_token(Token token);
 
     // Parsing methods
-    std::unique_ptr<ExprAST> ParsePrimaryExpr(Token current_token, Token next_token);
+    std::unique_ptr<ExprAST> ParsePrimaryExpr(Token current_token);
     std::unique_ptr<ExprAST> ParseBinOpRHS(int expression_precedence, Token current_token,
                                            std::unique_ptr<ExprAST> LHS);
     std::unique_ptr<ExprAST> ParseNumberExpr(Token token);

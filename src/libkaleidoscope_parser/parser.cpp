@@ -84,29 +84,37 @@ std::unique_ptr<ExprAST> Parser::ParseExpression()
 
 std::unique_ptr<ExprAST> Parser::ParseExpression(Token current_token)
 {
+    std::unique_ptr<ExprAST> LHS = this->ParsePrimaryExpr(current_token);
+    Token next_token = this->get_next_token();
+    return ParseBinOpRHS(0, next_token, std::move(LHS));
+}
+
+
+std::unique_ptr<ExprAST> Parser::ParsePrimaryExpr(Token current_token)
+{
     std::unique_ptr<ExprAST> LHS = nullptr;
     Token next_token = this->get_next_token();
     if (is_simple_identifier(current_token, next_token))
     {
+        // does not consume the next token, so return it in the pipe
         LHS = this->ParseIdentifierExpr(current_token);
+        this->return_token(next_token);
     }
     else if (current_token.token == tok_identifier)
     {
-        // call expr will consume the next token, so make sure to get
-        // the next token again before continuing
+        // call expression will consume the next token
         LHS = this->ParseCallExpr(current_token, next_token);
-        Token next_token = this->get_next_token();
     }
     else if (current_token.token == tok_number)
     {
+        // does not consume the next token, so return it in the pipe
         LHS = this->ParseNumberExpr(current_token);
+        this->return_token(next_token);
     }
     else if (current_token.token == '(')
     {
-        // paren expr will consume the next token, so make sure to get
-        // the next token again before continuing
+        // paren expr will consume the next token
         LHS = this->ParseParenExpr(current_token, next_token);
-        Token next_token = this->get_next_token();
     }
     else
     {
@@ -116,7 +124,7 @@ std::unique_ptr<ExprAST> Parser::ParseExpression(Token current_token)
     if (!LHS)
         return nullptr;
 
-    return ParseBinOpRHS(0, next_token, std::move(LHS));
+    return LHS;
 }
 
 
@@ -143,9 +151,7 @@ std::unique_ptr<ExprAST> Parser::ParseBinOpRHS(int expression_precedence,
         // with the next primary expr
         int binary_operator = current_token.token;
         Token next_token = this->get_next_token();
-        // TODO: FIXME!! This will eat up the next binary operation,
-        // when we only want to parse the primary expression.
-        auto RHS = this->ParseExpression(next_token);
+        auto RHS = this->ParsePrimaryExpr(next_token);
         if (!RHS)
             return nullptr;
 
