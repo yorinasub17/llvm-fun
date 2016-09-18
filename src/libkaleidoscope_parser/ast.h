@@ -39,9 +39,13 @@ class BinaryExprAST : public ExprAST
 
   public:
     BinaryExprAST(char op,
-                   std::unique_ptr<ExprAST> left,
-                   std::unique_ptr<ExprAST> right)
+                  std::unique_ptr<ExprAST> left,
+                  std::unique_ptr<ExprAST> right)
         : op(op), left(std::move(left)), right(std::move(right)) {}
+
+    char get_op();
+    ExprAST* get_left();
+    ExprAST* get_right();
 };
 
 

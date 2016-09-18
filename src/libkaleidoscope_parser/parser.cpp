@@ -2,6 +2,7 @@
 #include <memory>
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include "ast.h"
 #include "parser.h"
@@ -25,6 +26,27 @@ static std::unique_ptr<PrototypeAST> log_error_prototype(const char *str)
 static int is_simple_identifier(Token current_token, Token next_token)
 {
     return current_token.token == tok_identifier && next_token.token != '(';
+}
+
+
+static std::map<char, int> BinaryOpPrecedence = { {'<', 10},
+                                                  {'>', 10},
+                                                  {'+', 20},
+                                                  {'-', 20},
+                                                  {'*', 40},
+                                                  {'/', 40}
+                                                };
+int GetOperatorPrecedence(Token token)
+{
+    // Token must be char token as operator
+    if (!isascii(token.token))
+        return -1;
+
+    int token_precedence = BinaryOpPrecedence[token.token];
+    // Check to make sure token is a known binary operator
+    if (token_precedence <= 0)
+        return -1;
+    return token_precedence;
 }
 
 
@@ -91,11 +113,64 @@ std::unique_ptr<ExprAST> Parser::ParseExpression(Token current_token)
         return log_error("unknown token when expecting a primary expression!");
     }
 
-    // TODO
-    // Pop consumed token back into buffer so it can be consumed
-    // later
-    this->return_token(next_token);
-    return LHS;
+    if (!LHS)
+        return nullptr;
+
+    return ParseBinOpRHS(0, next_token, std::move(LHS));
+}
+
+
+std::unique_ptr<ExprAST> Parser::ParseBinOpRHS(int expression_precedence,
+                                               Token current_token,
+                                               std::unique_ptr<ExprAST> LHS)
+{
+    while (1)
+    {
+        int current_token_precedence = GetOperatorPrecedence(current_token);
+        int next_token_precedence = 0;
+
+        // We are done if the current token precedence is less than the current
+        // operator precedence.
+        if (current_token_precedence < expression_precedence)
+        {
+            // Since we consumed the token, return it back into the stream for
+            // later parsing.
+            this->return_token(current_token);
+            return LHS;
+        }
+
+        // The current token is a binary operator with precedence, so parse it
+        // with the next primary expr
+        int binary_operator = current_token.token;
+        Token next_token = this->get_next_token();
+        // TODO: FIXME!! This will eat up the next binary operation,
+        // when we only want to parse the primary expression.
+        auto RHS = this->ParseExpression(next_token);
+        if (!RHS)
+            return nullptr;
+
+        // Peek into the next token to determine operator precedence
+        next_token = this->get_next_token();
+        next_token_precedence = GetOperatorPrecedence(next_token);
+
+        // If the next operator has precedence, parse up the right side
+        if (current_token_precedence < next_token_precedence)
+        {
+            RHS = this->ParseBinOpRHS(current_token_precedence+1, next_token, std::move(RHS));
+            if (!RHS)
+                return nullptr;
+            // Don't forget to update the token
+            current_token = this->get_next_token();
+        }
+        // Otherwise, advance the token
+        else
+        {
+            current_token = next_token;
+        }
+        LHS = std::make_unique<BinaryExprAST>(binary_operator,
+                                              std::move(LHS),
+                                              std::move(RHS));
+    }
 }
 
 

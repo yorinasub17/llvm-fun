@@ -31,11 +31,16 @@ class Parser
 
     // Parsing methods
     std::unique_ptr<ExprAST> ParsePrimaryExpr(Token current_token, Token next_token);
+    std::unique_ptr<ExprAST> ParseBinOpRHS(int expression_precedence, Token current_token,
+                                           std::unique_ptr<ExprAST> LHS);
     std::unique_ptr<ExprAST> ParseNumberExpr(Token token);
     std::unique_ptr<ExprAST> ParseParenExpr(Token token, Token next_token);
     std::unique_ptr<ExprAST> ParseIdentifierExpr(Token current_token);
     std::unique_ptr<ExprAST> ParseCallExpr(Token current_token, Token next_token);
 };
+
+
+int GetOperatorPrecedence(Token token);
 
 
 #endif  // PARSER_H_
