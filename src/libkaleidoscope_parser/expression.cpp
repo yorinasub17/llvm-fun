@@ -16,13 +16,6 @@ static std::unique_ptr<ExprAST> log_error(const char *str)
 }
 
 
-static std::unique_ptr<PrototypeAST> log_error_prototype(const char *str)
-{
-    log_error(str);
-    return nullptr;
-}
-
-
 static int is_simple_identifier(Token current_token, Token next_token)
 {
     return current_token.token == tok_identifier && next_token.token != '(';
@@ -47,31 +40,6 @@ int GetOperatorPrecedence(Token token)
     if (token_precedence <= 0)
         return -1;
     return token_precedence;
-}
-
-
-Token Parser::get_next_token()
-{
-    // Get directly from input if buffer is empty
-    if (this->buffer.empty())
-    {
-        return GetToken(this->input);
-    }
-    // Otherwise get from buffer and consume it
-    else
-    {
-        auto token = buffer.front();
-        this->buffer.pop_front();
-        return token;
-    }
-}
-
-
-// Returns consumed token back to front of buffer to be consumed
-// again.
-void Parser::return_token(Token token)
-{
-    this->buffer.push_front(token);
 }
 
 

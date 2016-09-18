@@ -24,12 +24,15 @@ class Parser
     std::unique_ptr<ExprAST> ParseExpression(Token token);
     std::unique_ptr<PrototypeAST> ParsePrototype();
 
+    // Test function
+    void Driver();
+
   private:
     // Helper
     Token get_next_token();
     void return_token(Token token);
 
-    // Parsing methods
+    // Expression parsing methods
     std::unique_ptr<ExprAST> ParsePrimaryExpr(Token current_token);
     std::unique_ptr<ExprAST> ParseBinOpRHS(int expression_precedence, Token current_token,
                                            std::unique_ptr<ExprAST> LHS);
@@ -37,6 +40,13 @@ class Parser
     std::unique_ptr<ExprAST> ParseParenExpr(Token token, Token next_token);
     std::unique_ptr<ExprAST> ParseIdentifierExpr(Token current_token);
     std::unique_ptr<ExprAST> ParseCallExpr(Token current_token, Token next_token);
+
+    // Protoype parsing methods
+
+    std::unique_ptr<PrototypeAST> ParsePrototype(Token current_token);
+    std::unique_ptr<FunctionAST> ParseDefinition(Token current_token);
+    std::unique_ptr<PrototypeAST> ParseExtern(Token current_token);
+    std::unique_ptr<FunctionAST> ParseTopLevelExpr(Token current_token);
 };
 
 
